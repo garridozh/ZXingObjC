@@ -83,11 +83,13 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     if (error) *error = ZXNotFoundErrorInstance();
     return nil;
   }
-  NSMutableString *result = [NSMutableString stringWithCapacity:codewords.length * 2];
+    NSMutableString *resultFinal=[[NSMutableString alloc]init];
+
   // Get compaction mode
   int codeIndex = 1;
   int code = codewords.array[codeIndex++];
   ZXPDF417ResultMetadata *resultMetadata = [[ZXPDF417ResultMetadata alloc] init];
+      NSMutableString *result = [NSMutableString stringWithCapacity:codewords.length * 2];
   while (codeIndex < codewords.array[0]) {
     switch (code) {
     case ZX_PDF417_TEXT_COMPACTION_MODE_LATCH:
@@ -127,12 +129,23 @@ static NSArray *ZX_PDF417_EXP900 = nil;
       if (error) *error = ZXNotFoundErrorInstance();
       return nil;
     }
+
+      char* resultChars=[result UTF8String];
+      if(strlen(resultChars))
+      {
+      [resultFinal appendFormat:@"%s",resultChars];
+      }
+      else{
+            [resultFinal appendString:@"\t"];
+      }
+      result = [NSMutableString stringWithCapacity:codewords.length * 2];
   }
+    /*
   if ([result length] == 0) {
     if (error) *error = ZXNotFoundErrorInstance();
     return nil;
-  }
-  ZXDecoderResult *decoderResult = [[ZXDecoderResult alloc] initWithRawBytes:nil text:result byteSegments:nil ecLevel:ecLevel];
+  }*/
+  ZXDecoderResult *decoderResult = [[ZXDecoderResult alloc] initWithRawBytes:nil text:resultFinal byteSegments:nil ecLevel:ecLevel];
   decoderResult.other = resultMetadata;
   return decoderResult;
 }
@@ -394,6 +407,7 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     if (ch != 0) {
       // Append decoded character to result
       [result appendFormat:@"%C", ch];
+        NSLog(@"Add char:%C\n%d",ch,ch);
     }
     i++;
   }
