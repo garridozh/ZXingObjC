@@ -133,11 +133,11 @@ static NSArray *ZX_PDF417_EXP900 = nil;
       char* resultChars=[result UTF8String];
       if(strlen(resultChars))
       {
-      [resultFinal appendFormat:@"%s",resultChars];
+          [resultFinal appendFormat:@"%s",resultChars];
       }
-      else{
-            [resultFinal appendString:@"\t"];
-      }
+//      else{
+//            [resultFinal appendString:@"\t"];
+//      }
       result = [NSMutableString stringWithCapacity:codewords.length * 2];
   }
     /*
@@ -434,6 +434,9 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     ZXIntArray *byteCompactedCodewords = [[ZXIntArray alloc] initWithLength:6];
     BOOL end = NO;
     int nextCode = codewords.array[codeIndex++];
+//      if (nextCode == 0){
+//          [result appendString:@"@"];
+//      }
     while ((codeIndex < codewords.array[0]) && !end) {
       byteCompactedCodewords.array[count++] = nextCode;
       // Base 900
@@ -457,9 +460,13 @@ static NSArray *ZX_PDF417_EXP900 = nil;
             decodedData[5 - j] = (unichar) (value % 256);
             value >>= 8;
           }
+            
           [result appendString:[[NSString alloc] initWithCharacters:decodedData length:6]];
           count = 0;
         }
+          if (nextCode == 0){
+              [result appendString:@"#"];
+          }
       }
     }
 
@@ -482,20 +489,24 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     BOOL end = NO;
     while (codeIndex < codewords.array[0] && !end) {
       int code = codewords.array[codeIndex++];
-      if (code < ZX_PDF417_TEXT_COMPACTION_MODE_LATCH) {
-        count++;
-        // Base 900
-        value = 900 * value + code;
-      } else {
-        if (code == ZX_PDF417_TEXT_COMPACTION_MODE_LATCH ||
-            code == ZX_PDF417_BYTE_COMPACTION_MODE_LATCH ||
-            code == ZX_PDF417_NUMERIC_COMPACTION_MODE_LATCH ||
-            code == ZX_PDF417_BYTE_COMPACTION_MODE_LATCH_6 ||
-            code == ZX_PDF417_BEGIN_MACRO_PDF417_CONTROL_BLOCK ||
-            code == ZX_PDF417_BEGIN_MACRO_PDF417_OPTIONAL_FIELD ||
-            code == ZX_PDF417_MACRO_PDF417_TERMINATOR) {
-          codeIndex--;
-          end = YES;
+        if (code == 0){
+            [result appendString:@"#"];
+        }else{
+            if (code < ZX_PDF417_TEXT_COMPACTION_MODE_LATCH) {
+                count++;
+                // Base 900
+                value = 900 * value + code;
+            } else {
+                if (code == ZX_PDF417_TEXT_COMPACTION_MODE_LATCH ||
+                    code == ZX_PDF417_BYTE_COMPACTION_MODE_LATCH ||
+                    code == ZX_PDF417_NUMERIC_COMPACTION_MODE_LATCH ||
+                    code == ZX_PDF417_BYTE_COMPACTION_MODE_LATCH_6 ||
+                    code == ZX_PDF417_BEGIN_MACRO_PDF417_CONTROL_BLOCK ||
+                    code == ZX_PDF417_BEGIN_MACRO_PDF417_OPTIONAL_FIELD ||
+                    code == ZX_PDF417_MACRO_PDF417_TERMINATOR) {
+                    codeIndex--;
+                    end = YES;
+                }
         }
       }
       if ((count % 5 == 0) && (count > 0)) {

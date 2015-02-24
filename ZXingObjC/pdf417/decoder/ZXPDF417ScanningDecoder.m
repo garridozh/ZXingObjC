@@ -262,6 +262,13 @@ static ZXPDF417ECErrorCorrection *errorCorrection;
         [erasures addObject:@(codewordIndex)];
       } else if (values.length == 1) {
         codewords.array[codewordIndex] = values.array[0];
+          
+//          if (values.array[0] != 0){
+//              codewords.array[codewordIndex] = values.array[0];
+//          }else{
+//              codewords.array[codewordIndex] = 999;
+//          }
+          
       } else {
         [ambiguousIndexesList addObject:@(codewordIndex)];
         [ambiguousIndexValuesList addObject:values];
