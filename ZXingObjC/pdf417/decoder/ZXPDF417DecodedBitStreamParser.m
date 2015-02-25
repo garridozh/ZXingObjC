@@ -134,10 +134,15 @@ static NSArray *ZX_PDF417_EXP900 = nil;
       if(strlen(resultChars))
       {
           [resultFinal appendFormat:@"%s",resultChars];
+          NSString *lastChar = [resultFinal substringFromIndex:resultFinal.length - 1];
+          if ([lastChar isEqualToString:@"+"] ||
+              [lastChar isEqualToString:@"-"]){
+              [resultFinal appendString:@"@FINAL@"];
+          }else{
+              [resultFinal appendString:@"#"];
+          }
       }
-//      else{
-//            [resultFinal appendString:@"\t"];
-//      }
+
       result = [NSMutableString stringWithCapacity:codewords.length * 2];
   }
     /*
@@ -425,6 +430,9 @@ static NSArray *ZX_PDF417_EXP900 = nil;
  * @return The next index into the codeword array.
  */
 + (int)byteCompaction:(int)mode codewords:(ZXIntArray *)codewords codeIndex:(int)codeIndex result:(NSMutableString *)result {
+    if (mode == ZX_PDF417_MACRO_PDF417_TERMINATOR){
+        [result appendString:@"@"];
+    }
   if (mode == ZX_PDF417_BYTE_COMPACTION_MODE_LATCH) {
     // Total number of Byte Compaction characters to be encoded
     // is not a multiple of 6
@@ -434,9 +442,9 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     ZXIntArray *byteCompactedCodewords = [[ZXIntArray alloc] initWithLength:6];
     BOOL end = NO;
     int nextCode = codewords.array[codeIndex++];
-//      if (nextCode == 0){
-//          [result appendString:@"@"];
-//      }
+      if (nextCode == 0){
+//          [result appendString:@"#"];
+      }
     while ((codeIndex < codewords.array[0]) && !end) {
       byteCompactedCodewords.array[count++] = nextCode;
       // Base 900
@@ -465,7 +473,7 @@ static NSArray *ZX_PDF417_EXP900 = nil;
           count = 0;
         }
           if (nextCode == 0){
-              [result appendString:@"#"];
+//              [result appendString:@"#"];
           }
       }
     }
@@ -490,7 +498,7 @@ static NSArray *ZX_PDF417_EXP900 = nil;
     while (codeIndex < codewords.array[0] && !end) {
       int code = codewords.array[codeIndex++];
         if (code == 0){
-            [result appendString:@"#"];
+//            [result appendString:@"#"];
         }else{
             if (code < ZX_PDF417_TEXT_COMPACTION_MODE_LATCH) {
                 count++;
